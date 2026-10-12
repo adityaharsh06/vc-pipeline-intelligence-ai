@@ -7,7 +7,8 @@ Twice a week, before Vikram works his Seed-round pipeline, this system checks al
 announcement, a blog post, an interview, or an event appearance. It ranks who is worth contacting this week and why,
 lists who has gone quiet, and updates his Supabase table, **without ever touching his own notes or contact history**.
 
-- **Live app:** _add Vercel URL_
+- **Live app:** https://vc-pipeline-intelligence-ai.vercel.app
+- **Repository:** https://github.com/adityaharsh06/vc-pipeline-intelligence-ai
 - **No login.** Open the URL and everything is usable, including **Refresh now**.
 - **Components Map:** `/architecture` in the app (diagram, component table, scoring method, requirement checklist).
 
@@ -27,7 +28,7 @@ lists who has gone quiet, and updates his Supabase table, **without ever touchin
 ## How it works
 
 ```
-Vercel Cron (Mon & Thu 09:30 IST) ─┐
+Vercel Cron (Mon & Thu 09:30 IST, resume check 10:00) ─┐
 "Refresh now" (public, 5-min cooldown)┴─► Run orchestrator (batches of 8, chunked across invocations)
         │
         ├─► Google News RSS + Bing News RSS   (live, publisher-dated, 4 queries per investor)
