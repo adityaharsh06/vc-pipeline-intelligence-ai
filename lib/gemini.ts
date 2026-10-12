@@ -38,6 +38,7 @@ type Options = {
   schema?: object;
   temperature?: number;
   onCall?: (model: string) => void;
+  deadline?: number; // epoch ms; give up (status 408) rather than run past it
 };
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -68,6 +69,8 @@ export async function gemini<T>(prompt: string, opts: Options = {}): Promise<Gem
   let lastError = "no Gemini Flash model available";
 
   for (let attempt = 0; attempt < 8; attempt++) {
+    const left = opts.deadline ? opts.deadline - Date.now() : 120_000;
+    if (left < 8_000) throw new GeminiError("Out of time in this invocation", 408);
     const model = GEMINI_MODELS.find((m) => !exhausted.has(m));
     if (!model) throw new GeminiError(`All Gemini Flash models are out of quota (${lastError})`, 429);
 
@@ -89,7 +92,7 @@ export async function gemini<T>(prompt: string, opts: Options = {}): Promise<Gem
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": key },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(120_000),
+        signal: AbortSignal.timeout(Math.min(75_000, left - 3_000)),
       });
     } catch (e) {
       lastError = e instanceof Error ? e.message : String(e);

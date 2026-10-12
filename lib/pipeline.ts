@@ -6,7 +6,7 @@ import type { Breakdown, Investor, Rejected, Run, Signal, SignalType } from "./t
 import { SIGNAL_TYPE_LABEL } from "./types";
 
 const BATCH = 8; // investors per Gemini classification call
-const CHUNK_BUDGET_MS = 230_000; // stay well inside the 300s function limit
+const CHUNK_BUDGET_MS = 250_000; // hard stop for Gemini calls; the function limit is 300s
 const STALL_MS = 6 * 60_000;
 const MANUAL_COOLDOWN_MS = 5 * 60_000;
 
@@ -246,7 +246,7 @@ const CLASSIFY_SCHEMA = {
 
 // One Gemini Flash call classifies the evidence for a whole batch of investors.
 // This keeps a 50-investor run to ~7 calls, inside the free-tier daily quota.
-async function classifyBatch(entries: { key: string; inv: Investor; candidates: Candidate[] }[], now: Date, counter: Counter) {
+async function classifyBatch(entries: { key: string; inv: Investor; candidates: Candidate[] }[], now: Date, counter: Counter, deadline?: number) {
   const blocks = entries
     .map(({ key, inv, candidates }) => {
       const list = candidates
@@ -275,6 +275,7 @@ Per investor also give:
   const { data } = await gemini<{ investors: Classified[] }>(prompt, {
     onCall: () => counter.calls++,
     schema: CLASSIFY_SCHEMA,
+    deadline,
   });
   return new Map((data.investors ?? []).map((c) => [c.key, c]));
 }
@@ -388,7 +389,8 @@ function buildResult(inv: Investor, g: Gathered, c: Classified | undefined, now:
 }
 
 // Gather live evidence for a batch in parallel, then classify the whole batch with one Gemini call.
-export async function assessBatch(invs: Investor[], now: Date, counter: Counter): Promise<AssessmentResult[]> {
+// Returns null if the batch ran out of time; the caller re-queues it for the next invocation.
+export async function assessBatch(invs: Investor[], now: Date, counter: Counter, deadline?: number): Promise<AssessmentResult[] | null> {
   const gathered = await Promise.all(
     invs.map((inv) =>
       gatherCandidates(inv, now, counter).catch(
@@ -406,8 +408,9 @@ export async function assessBatch(invs: Investor[], now: Date, counter: Counter)
   let classifyError: string | null = null;
   if (entries.length) {
     try {
-      classified = await classifyBatch(entries, now, counter);
+      classified = await classifyBatch(entries, now, counter, deadline);
     } catch (e) {
+      if (e instanceof GeminiError && e.status === 408) return null;
       classifyError = e instanceof Error ? e.message : String(e);
     }
   }
@@ -419,7 +422,7 @@ export async function assessBatch(invs: Investor[], now: Date, counter: Counter)
 }
 
 export async function assessInvestor(inv: Investor, now: Date, counter: Counter) {
-  return (await assessBatch([inv], now, counter))[0];
+  return (await assessBatch([inv], now, counter))![0];
 }
 
 // ---------- Run orchestration (chunked so 50 investors never hit the function time limit) ----------
@@ -486,9 +489,13 @@ export async function processChunk(runId: string, origin: string) {
   const counter: Counter = { calls: 0 };
   let processedNow = 0;
 
-  while (pending.length && Date.now() < deadline - 90_000) {
+  while (pending.length && Date.now() < deadline - 60_000) {
     const batch = pending.splice(0, BATCH);
-    const results = await assessBatch(batch, now, counter);
+    const results = await assessBatch(batch, now, counter, deadline);
+    if (!results) {
+      pending.unshift(...batch); // out of time: hand these to the next invocation
+      break;
+    }
     await Promise.all(
       batch.map(async (inv, i) => {
         let result = results[i];
