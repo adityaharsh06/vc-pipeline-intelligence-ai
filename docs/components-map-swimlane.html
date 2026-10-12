@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Components Map · VC Pipeline Intelligence</title>
+<style>
+  @page { size: 1840px 1250px; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { width: 1840px; height: 1250px; position: relative; font-family: "Segoe UI", Inter, system-ui, sans-serif; color: #10203a; }
+  h1 { position: absolute; top: 22px; left: 0; width: 100%; text-align: center; margin: 0; font-size: 34px; font-weight: 700; color: #13234a; letter-spacing: -0.01em; }
+  .grid { position: absolute; left: 20px; top: 88px; width: 1800px; }
+  .hdr { position: absolute; top: 0; height: 72px; background: #172a4a; color: #fff; font-size: 21px; font-weight: 600;
+         display: flex; align-items: center; justify-content: center; border-right: 1px solid #2b4068; }
+  .hdr:first-child { border-radius: 10px 0 0 0; }
+  .hdr.last { border-radius: 0 10px 0 0; border-right: 0; }
+  .actor { position: absolute; left: 0; width: 196px; background: #172a4a; color: #fff; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; text-align: center; border-top: 1px solid #2b4068; }
+  .actor b { font-size: 21px; font-weight: 600; }
+  .actor span { font-size: 16px; opacity: 0.85; margin-top: 4px; }
+  .lane { position: absolute; left: 196px; width: 1604px; }
+  .vline { position: absolute; top: 72px; width: 1px; background: rgba(23, 42, 74, 0.08); }
+  .box { position: absolute; border-radius: 10px; border: 2.5px solid; display: flex; flex-direction: column; align-items: center; justify-content: center;
+         text-align: center; font-size: 17.5px; line-height: 1.32; padding: 10px 14px; }
+  .box small { font-size: 14.5px; display: block; margin-top: 3px; opacity: 0.85; }
+  .purple { background: #e4e3fb; border-color: #5552d9; }
+  .blue   { background: #e3eefd; border-color: #2f6fe0; }
+  .green  { background: #e3f6e6; border-color: #3fae55; }
+  .yellow { background: #fff1c9; border-color: #f0a51f; }
+  .pink   { background: #fde3ef; border-color: #e0399a; }
+  .red    { background: #fde4e2; border-color: #e5483d; }
+  .teal   { background: #dcf3f0; border-color: #1f9e8d; }
+  .violet { background: #efe6fb; border-color: #8a4fd6; }
+  svg.arrows { position: absolute; left: 20px; top: 88px; width: 1800px; height: 1132px; pointer-events: none; }
+  .foot { position: absolute; left: 20px; right: 20px; bottom: 10px; font-size: 14px; color: #5a6a85; display: flex; justify-content: space-between; }
+</style>
+</head>
+<body>
+  <h1>Problem Statement 10 · VC Pipeline Intelligence — Components Map</h1>
+
+  <div class="grid" id="grid">
+    <!-- header row: Actor 196 | 6 × 267 columns -->
+    <div class="hdr" style="left:0;width:196px">Actor</div>
+    <div class="hdr" style="left:196px;width:267px">Trigger</div>
+    <div class="hdr" style="left:463px;width:267px">Input</div>
+    <div class="hdr" style="left:730px;width:267px">Context</div>
+    <div class="hdr" style="left:997px;width:267px">Processing</div>
+    <div class="hdr" style="left:1264px;width:267px">AI</div>
+    <div class="hdr last" style="left:1531px;width:269px">Output</div>
+
+    <!-- lanes: 6 rows × 176px starting at y=72 -->
+    <div class="actor" style="top:72px;height:176px"><b>Vikram</b><span>(Founder / User)</span></div>
+    <div class="lane" style="top:72px;height:176px;background:#e9f1fd"></div>
+    <div class="actor" style="top:248px;height:176px"><b>Scheduler</b><span>(Vercel Cron)</span></div>
+    <div class="lane" style="top:248px;height:176px;background:#f1eefc"></div>
+    <div class="actor" style="top:424px;height:176px"><b>System</b><span>(Next.js Backend)</span></div>
+    <div class="lane" style="top:424px;height:176px;background:#fefbe8"></div>
+    <div class="actor" style="top:600px;height:176px"><b>Live Data</b><span>(Google News +<br>Bing News RSS)</span></div>
+    <div class="lane" style="top:600px;height:176px;background:#e8f6f3"></div>
+    <div class="actor" style="top:776px;height:176px"><b>AI Model</b><span>(Gemini Flash)</span></div>
+    <div class="lane" style="top:776px;height:176px;background:#ebf8ed"></div>
+    <div class="actor" style="top:952px;height:180px;border-radius:0 0 0 10px"><b>Database</b><span>(Supabase)</span></div>
+    <div class="lane" style="top:952px;height:180px;background:#fdecf3;border-radius:0 0 10px 0"></div>
+
+    <div class="vline" style="left:463px;height:1060px"></div>
+    <div class="vline" style="left:730px;height:1060px"></div>
+    <div class="vline" style="left:997px;height:1060px"></div>
+    <div class="vline" style="left:1264px;height:1060px"></div>
+    <div class="vline" style="left:1531px;height:1060px"></div>
+
+    <!-- Vikram -->
+    <div class="box purple" style="left:212px;top:110px;width:235px;height:100px">Opens dashboard or clicks "Refresh now"<small>(public, no login)</small></div>
+    <div class="box red" style="left:1545px;top:92px;width:242px;height:140px">Dashboard: VCs to contact this week + why, source links, opening lines, quiet VCs<small>(notes editable)</small></div>
+
+    <!-- Scheduler -->
+    <div class="box violet" style="left:212px;top:286px;width:235px;height:100px">Auto-runs twice a week<small>Mon &amp; Thu, 09:30 IST</small></div>
+
+    <!-- System -->
+    <div class="box blue" style="left:479px;top:452px;width:235px;height:120px">Loads 50 VCs: name, firm, thesis, status, last contact</div>
+    <div class="box green" style="left:746px;top:452px;width:235px;height:120px">Builds live searches per VC<small>firm + partner name, last 30 days</small></div>
+    <div class="box yellow" style="left:1013px;top:452px;width:235px;height:120px">Drops old / duplicate items; batches 8 VCs<small>(only public news sent to AI)</small></div>
+    <div class="box yellow" style="left:1545px;top:446px;width:242px;height:132px">Scores with fixed rubric → recommended action<small>relevance · recency · type · evidence · relationship</small></div>
+
+    <!-- Live data -->
+    <div class="box teal" style="left:746px;top:628px;width:235px;height:120px">Returns live, publisher-dated headlines + article links</div>
+
+    <!-- AI -->
+    <div class="box pink" style="left:1278px;top:794px;width:240px;height:140px">Classifies each article: about this VC? signal type, logistics relevance; writes why-now + opening line</div>
+
+    <!-- Database -->
+    <div class="box blue" style="left:479px;top:982px;width:235px;height:120px">vc_investors table<small>50 VCs + Vikram's notes &amp; contact history</small></div>
+    <div class="box red" style="left:1545px;top:972px;width:242px;height:140px">Updates ONLY 4 signal columns<small>trigger blocks writes to notes &amp; contact history; run audited</small></div>
+  </div>
+
+  <svg class="arrows" viewBox="0 0 1800 1132">
+    <defs>
+      <marker id="h" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#1e3358"/>
+      </marker>
+    </defs>
+    <g fill="none" stroke="#1e3358" stroke-width="2" stroke-dasharray="7 6">
+      <!-- Vikram trigger -> load VCs -->
+      <path d="M447,160 H640 V448" marker-end="url(#h)"/>
+      <!-- Cron -> load VCs -->
+      <path d="M447,336 H560 V448" marker-end="url(#h)"/>
+      <!-- DB table -> load VCs -->
+      <path d="M596,982 V576" marker-end="url(#h)"/>
+      <!-- load -> build searches -->
+      <path d="M714,512 H742" marker-end="url(#h)"/>
+      <!-- build searches -> live data -->
+      <path d="M863,572 V624" marker-end="url(#h)"/>
+      <!-- live data -> filter -->
+      <path d="M981,688 H1130 V576" marker-end="url(#h)"/>
+      <!-- filter -> AI -->
+      <path d="M1248,512 H1398 V790" marker-end="url(#h)"/>
+      <!-- AI -> scoring -->
+      <path d="M1518,864 H1600 V582" marker-end="url(#h)"/>
+      <!-- scoring -> DB update -->
+      <path d="M1700,578 V968" marker-end="url(#h)"/>
+      <!-- DB update -> dashboard -->
+      <path d="M1787,1042 H1797 V162 H1791" marker-end="url(#h)"/>
+    </g>
+  </svg>
+
+  <div class="foot">
+    <span>Live app: vc-pipeline-intelligence-ai.vercel.app · Repo: github.com/adityaharsh06/vc-pipeline-intelligence-ai</span>
+    <span>All AI tasks use Gemini Flash · The pipeline never writes Vikram's notes or contact history</span>
+  </div>
+</body>
+</html>

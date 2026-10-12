@@ -10,7 +10,7 @@ lists who has gone quiet, and updates his Supabase table, **without ever touchin
 - **Live app:** https://vc-pipeline-intelligence-ai.vercel.app
 - **Repository:** https://github.com/adityaharsh06/vc-pipeline-intelligence-ai
 - **No login.** Open the URL and everything is usable, including **Refresh now**.
-- **Components Map:** [docs/Components-Map.pdf](docs/Components-Map.pdf) (2 pages: diagram + component table), also live at `/architecture` in the app.
+- **Components Map:** [docs/Components-Map.png](docs/Components-Map.png) (swimlane format; PDF: [docs/Components-Map-swimlane.pdf](docs/Components-Map-swimlane.pdf)). Detailed 2-page version: [docs/Components-Map.pdf](docs/Components-Map.pdf), also live at `/architecture`.
 
 ## What to try (5 minutes)
 
