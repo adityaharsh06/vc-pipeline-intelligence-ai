@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Components Map · VC Signal Desk</title>
+<style>
+  @page { size: A4 landscape; margin: 10mm 12mm; }
+  :root {
+    --ink: #15171c; --muted: #555c68; --faint: #8a909a; --line: #d9d9d3;
+    --accent: #3a4bd6; --accent-soft: #eceefe; --hot: #0b7a55; --hot-soft: #e3f4ec;
+    --lock: #6b4fbb; --lock-soft: #f0ebfb; --warm: #a3610b; --warm-soft: #fbf0dd; --panel: #fff; --bg2: #f7f7f4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); font-size: 10.5px; line-height: 1.4; background: #fff;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { width: 273mm; height: 188mm; overflow: hidden; page-break-after: always; display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: auto; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--ink); padding-bottom: 6px; margin-bottom: 8px; }
+  h1 { font-size: 20px; margin: 0; letter-spacing: -0.01em; }
+  h1 small { font-weight: 500; color: var(--muted); font-size: 13px; }
+  h2 { font-size: 12.5px; margin: 0 0 5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent); }
+  .meta { text-align: right; font-size: 10px; color: var(--muted); line-height: 1.5; }
+  .meta b { color: var(--ink); }
+  a { color: var(--accent); text-decoration: none; }
+  svg { width: 100%; height: auto; display: block; }
+  svg text { font-family: "Segoe UI", system-ui, sans-serif; }
+  .legend { display: flex; gap: 16px; font-size: 9.5px; color: var(--muted); margin-top: 4px; flex-wrap: wrap; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; border: 1.5px solid; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 9px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--faint); border-bottom: 1.5px solid var(--ink); padding: 3px 5px; }
+  td { border-bottom: 1px solid var(--line); padding: 3.2px 5px; vertical-align: top; }
+  td.n { font-weight: 700; color: var(--accent); width: 18px; text-align: center; }
+  td.c { font-weight: 600; white-space: nowrap; }
+  td.t { font-family: Consolas, monospace; font-size: 9.2px; color: var(--muted); }
+  .cols { display: grid; grid-template-columns: 1.55fr 1fr; gap: 14px; flex: 1; min-height: 0; }
+  .box { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; background: var(--panel); }
+  ol { margin: 0; padding-left: 16px; }
+  ol li { margin-bottom: 2.5px; }
+  .own { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .own div { border-radius: 6px; padding: 6px 8px; font-size: 10px; }
+  .own .m { background: var(--lock-soft); color: var(--lock); }
+  .own .s { background: var(--accent-soft); color: var(--accent); }
+  .own b { display: block; font-size: 10.5px; margin-bottom: 2px; }
+  .mini td { padding: 2px 5px; }
+  .foot { margin-top: auto; font-size: 9px; color: var(--faint); display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 4px; }
+  .pill { display: inline-block; border-radius: 99px; padding: 0 6px; font-size: 9px; font-weight: 600; }
+  .p-hot { background: var(--hot-soft); color: var(--hot); } .p-warm { background: var(--warm-soft); color: var(--warm); }
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1: DIAGRAM ================= -->
+<section class="page">
+  <header>
+    <div>
+      <h1>VC Signal Desk <small>· Components Map</small></h1>
+      <div style="color:var(--muted);margin-top:2px">VC Fundraising Pipeline Intelligence · Problem Statement 10 · AI and its Applications, Section 1 Final</div>
+    </div>
+    <div class="meta">
+      <b>Live app:</b> <a href="https://vc-pipeline-intelligence-ai.vercel.app">vc-pipeline-intelligence-ai.vercel.app</a> (no login)<br>
+      <b>Repository:</b> <a href="https://github.com/adityaharsh06/vc-pipeline-intelligence-ai">github.com/adityaharsh06/vc-pipeline-intelligence-ai</a><br>
+      <b>Stack:</b> Next.js 16 on Vercel · Supabase Postgres · Gemini Flash only
+    </div>
+  </header>
+
+  <svg viewBox="0 0 1100 590" role="img" aria-label="Components map diagram">
+    <defs>
+      <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#8a909a"/>
+      </marker>
+    </defs>
+
+    <!-- lane labels -->
+    <text x="20" y="16" font-size="10.5" font-weight="700" fill="#8a909a" letter-spacing="1">TRIGGERS</text>
+    <text x="230" y="16" font-size="10.5" font-weight="700" fill="#8a909a" letter-spacing="1">ORCHESTRATION</text>
+    <text x="460" y="16" font-size="10.5" font-weight="700" fill="#0b7a55" letter-spacing="1">LIVE EXTERNAL DATA</text>
+    <text x="680" y="16" font-size="10.5" font-weight="700" fill="#3a4bd6" letter-spacing="1">AI · GEMINI FLASH</text>
+    <text x="910" y="16" font-size="10.5" font-weight="700" fill="#8a909a" letter-spacing="1">DECISION RULES</text>
+
+    <!-- 1 cron -->
+    <g><rect x="20" y="28" width="170" height="62" rx="9" fill="#fff" stroke="#8a909a" stroke-width="1.3"/>
+      <circle cx="36" cy="45" r="9" fill="#8a909a"/><text x="36" y="49" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">1</text>
+      <text x="52" y="49" font-size="12.5" font-weight="700" fill="#15171c">Vercel Cron</text>
+      <text x="32" y="66" font-size="10.5" fill="#555c68">Mon &amp; Thu 09:30 IST</text>
+      <text x="32" y="80" font-size="10.5" fill="#555c68">+ 10:00 resume check</text></g>
+    <!-- 2 refresh -->
+    <g><rect x="20" y="108" width="170" height="62" rx="9" fill="#fff" stroke="#8a909a" stroke-width="1.3"/>
+      <circle cx="36" cy="125" r="9" fill="#8a909a"/><text x="36" y="129" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">2</text>
+      <text x="52" y="129" font-size="12.5" font-weight="700" fill="#15171c">"Refresh now"</text>
+      <text x="32" y="146" font-size="10.5" fill="#555c68">public button, no login</text>
+      <text x="32" y="160" font-size="10.5" fill="#555c68">5-minute cooldown</text></g>
+
+    <!-- 3 orchestrator -->
+    <g><rect x="230" y="58" width="190" height="96" rx="9" fill="#fff" stroke="#15171c" stroke-width="1.6"/>
+      <circle cx="246" cy="75" r="9" fill="#15171c"/><text x="246" y="79" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">3</text>
+      <text x="262" y="79" font-size="12.5" font-weight="700" fill="#15171c">Run orchestrator</text>
+      <text x="242" y="97" font-size="10.5" fill="#555c68">/api/run · lib/pipeline.ts</text>
+      <text x="242" y="111" font-size="10.5" fill="#555c68">batches of 8 investors</text>
+      <text x="242" y="125" font-size="10.5" fill="#555c68">chunked under 300 s limit,</text>
+      <text x="242" y="139" font-size="10.5" fill="#555c68">hands off to /api/run/continue</text></g>
+
+    <!-- 4 google news -->
+    <g><rect x="460" y="28" width="180" height="50" rx="9" fill="#fff" stroke="#0b7a55" stroke-width="1.6"/>
+      <circle cx="476" cy="45" r="9" fill="#0b7a55"/><text x="476" y="49" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">4</text>
+      <text x="492" y="49" font-size="12.5" font-weight="700" fill="#15171c">Google News RSS</text>
+      <text x="472" y="68" font-size="10.5" fill="#555c68">firm + partner · last 30 days</text></g>
+    <!-- 5 bing -->
+    <g><rect x="460" y="90" width="180" height="50" rx="9" fill="#fff" stroke="#0b7a55" stroke-width="1.6"/>
+      <circle cx="476" cy="107" r="9" fill="#0b7a55"/><text x="476" y="111" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">5</text>
+      <text x="492" y="111" font-size="12.5" font-weight="700" fill="#15171c">Bing News RSS</text>
+      <text x="472" y="130" font-size="10.5" fill="#555c68">publisher-dated · real URLs</text></g>
+    <!-- 6 grounding -->
+    <g><rect x="460" y="152" width="180" height="50" rx="9" fill="#fff" stroke="#3a4bd6" stroke-width="1.4" stroke-dasharray="5 4"/>
+      <circle cx="476" cy="169" r="9" fill="#3a4bd6"/><text x="476" y="173" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">6</text>
+      <text x="492" y="173" font-size="12.5" font-weight="700" fill="#15171c">Gemini + Search</text>
+      <text x="472" y="192" font-size="10.5" fill="#555c68">optional · off on free-tier key</text></g>
+
+    <!-- 7 classifier -->
+    <g><rect x="680" y="58" width="190" height="96" rx="9" fill="#fff" stroke="#3a4bd6" stroke-width="1.8"/>
+      <circle cx="696" cy="75" r="9" fill="#3a4bd6"/><text x="696" y="79" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">7</text>
+      <text x="712" y="79" font-size="12.5" font-weight="700" fill="#15171c">Gemini Flash classifier</text>
+      <text x="692" y="97" font-size="10.5" fill="#555c68">1 call per 8 investors (~7/run)</text>
+      <text x="692" y="111" font-size="10.5" fill="#555c68">about them? · type · relevance</text>
+      <text x="692" y="125" font-size="10.5" fill="#555c68">same-story grouping · why-now</text>
+      <text x="692" y="139" font-size="10.5" fill="#555c68">opening line · model fallback</text></g>
+
+    <!-- 8 scoring -->
+    <g><rect x="910" y="58" width="170" height="96" rx="9" fill="#fff" stroke="#8a909a" stroke-width="1.3"/>
+      <circle cx="926" cy="75" r="9" fill="#8a909a"/><text x="926" y="79" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">8</text>
+      <text x="942" y="79" font-size="12.5" font-weight="700" fill="#15171c">Scoring rules</text>
+      <text x="922" y="97" font-size="10.5" fill="#555c68">fixed arithmetic, not AI</text>
+      <text x="922" y="111" font-size="10.5" fill="#555c68">35+30+15+10+10 = 100</text>
+      <text x="922" y="125" font-size="10.5" fill="#555c68">relevance gate on actions</text>
+      <text x="922" y="139" font-size="10.5" fill="#555c68">lib/scoring.ts</text></g>
+
+    <!-- top arrows -->
+    <path d="M190,59 L228,90" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M190,139 L228,122" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M420,88 L458,55" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M420,106 L458,114" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M420,124 L458,172" fill="none" stroke="#8a909a" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#a)"/>
+    <path d="M640,53 L678,84" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M640,115 L678,108" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <path d="M640,177 L678,132" fill="none" stroke="#8a909a" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#a)"/>
+    <path d="M870,106 L908,106" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <text x="645" y="34" font-size="9.5" fill="#8a909a">headlines + dates</text>
+
+    <!-- Supabase container -->
+    <rect x="200" y="238" width="880" height="232" rx="14" fill="#f7fbf9" stroke="#0b7a55" stroke-width="1.3" stroke-dasharray="7 5"/>
+    <text x="216" y="258" font-size="11" font-weight="700" fill="#0b7a55" letter-spacing="1">SUPABASE · POSTGRES (RLS on, server-only secret key)</text>
+
+    <!-- 9 apply_signal -->
+    <g><rect x="220" y="276" width="195" height="66" rx="9" fill="#fff" stroke="#3a4bd6" stroke-width="1.6"/>
+      <circle cx="236" cy="293" r="9" fill="#3a4bd6"/><text x="236" y="297" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff">9</text>
+      <text x="252" y="297" font-size="12.5" font-weight="700" fill="#15171c">vc_apply_signal()</text>
+      <text x="232" y="315" font-size="10.5" fill="#555c68">pipeline's ONLY write path</text>
+      <text x="232" y="329" font-size="10.5" fill="#555c68">updates exactly 4 columns</text></g>
+    <!-- 13 update_manual -->
+    <g><rect x="220" y="372" width="195" height="66" rx="9" fill="#fff" stroke="#6b4fbb" stroke-width="1.6"/>
+      <circle cx="238" cy="389" r="10" fill="#6b4fbb"/><text x="238" y="393" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">13</text>
+      <text x="254" y="393" font-size="12.5" font-weight="700" fill="#15171c">vc_update_manual()</text>
+      <text x="232" y="411" font-size="10.5" fill="#555c68">Vikram's edits only</text>
+      <text x="232" y="425" font-size="10.5" fill="#555c68">every change logged</text></g>
+
+    <!-- 10 vc_investors -->
+    <g><rect x="450" y="268" width="270" height="180" rx="10" fill="#fff" stroke="#15171c" stroke-width="1.4"/>
+      <circle cx="468" cy="286" r="10" fill="#15171c"/><text x="468" y="290" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">10</text>
+      <text x="484" y="290" font-size="12.5" font-weight="700" fill="#15171c">vc_investors (Vikram's table, 50 VCs)</text>
+      <rect x="462" y="302" width="246" height="60" rx="7" fill="#eceefe"/>
+      <text x="472" y="320" font-size="10.5" font-weight="700" fill="#3a4bd6">⟳ SIGNAL COLUMNS · updated every run</text>
+      <text x="472" y="336" font-size="10.5" fill="#3a4bd6">last_signal_date · signal_summary</text>
+      <text x="472" y="351" font-size="10.5" fill="#3a4bd6">follow_up_score · recommended_action</text>
+      <rect x="462" y="372" width="246" height="64" rx="7" fill="#f0ebfb"/>
+      <text x="472" y="390" font-size="10.5" font-weight="700" fill="#6b4fbb">🔒 MANUAL COLUMNS · pipeline blocked</text>
+      <text x="472" y="406" font-size="10.5" fill="#6b4fbb">status · last_contact_date · notes</text>
+      <text x="472" y="421" font-size="10.5" fill="#6b4fbb">(+ name, firm, thesis)</text></g>
+
+    <!-- 11 guard -->
+    <g><rect x="755" y="276" width="305" height="66" rx="9" fill="#fff" stroke="#6b4fbb" stroke-width="1.6"/>
+      <circle cx="773" cy="293" r="10" fill="#6b4fbb"/><text x="773" y="297" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">11</text>
+      <text x="789" y="297" font-size="12.5" font-weight="700" fill="#15171c">Guard trigger · vc_guard_columns</text>
+      <text x="767" y="315" font-size="10.5" fill="#555c68">raises an error if the pipeline changes a 🔒 column</text>
+      <text x="767" y="329" font-size="10.5" fill="#555c68">live self-test button on the Runs &amp; audit page</text></g>
+    <!-- 12 audit -->
+    <g><rect x="755" y="372" width="305" height="66" rx="9" fill="#fff" stroke="#8a909a" stroke-width="1.3"/>
+      <circle cx="773" cy="389" r="10" fill="#8a909a"/><text x="773" y="393" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">12</text>
+      <text x="789" y="393" font-size="12.5" font-weight="700" fill="#15171c">vc_runs · vc_assessments · vc_manual_edits</text>
+      <text x="767" y="411" font-size="10.5" fill="#555c68">run log + before/after fingerprint of 🔒 columns</text>
+      <text x="767" y="425" font-size="10.5" fill="#555c68">all evidence, rejected items, history, edit log</text></g>
+
+    <!-- storage arrows -->
+    <path d="M995,154 L995,224 L318,224 L318,274" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <text x="700" y="218" font-size="10" fill="#555c68">score · summary · action · signal date</text>
+    <path d="M415,320 L460,330" fill="none" stroke="#3a4bd6" stroke-width="1.6" marker-end="url(#a)"/>
+    <path d="M415,405 L460,404" fill="none" stroke="#6b4fbb" stroke-width="1.6" marker-end="url(#a)"/>
+    <path d="M755,309 L710,325" fill="none" stroke="#6b4fbb" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#a)"/>
+    <text x="722" y="300" font-size="9.5" fill="#6b4fbb">guards</text>
+    
+
+    <!-- presentation -->
+    <text x="20" y="494" font-size="10.5" font-weight="700" fill="#8a909a" letter-spacing="1">PRESENTATION</text>
+    <g><rect x="20" y="506" width="250" height="70" rx="9" fill="#fff" stroke="#8a909a" stroke-width="1.3"/>
+      <circle cx="38" cy="523" r="10" fill="#8a909a"/><text x="38" y="527" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">15</text>
+      <text x="54" y="527" font-size="12.5" font-weight="700" fill="#15171c">Vikram / evaluator</text>
+      <text x="32" y="545" font-size="10.5" fill="#555c68">reads the briefing, opens evidence,</text>
+      <text x="32" y="559" font-size="10.5" fill="#555c68">edits notes, presses Refresh now</text></g>
+    <g><rect x="450" y="506" width="420" height="70" rx="9" fill="#fff" stroke="#15171c" stroke-width="1.4"/>
+      <circle cx="468" cy="523" r="10" fill="#15171c"/><text x="468" y="527" text-anchor="middle" font-size="10" font-weight="700" fill="#fff">14</text>
+      <text x="484" y="527" font-size="12.5" font-weight="700" fill="#15171c">Next.js dashboard on Vercel (server-rendered)</text>
+      <text x="462" y="545" font-size="10.5" fill="#555c68">Priority queue · Quiet VCs · All investors (editable) · Investor pages</text>
+      <text x="462" y="559" font-size="10.5" fill="#555c68">Runs &amp; audit · Components map · CSV export · API routes</text></g>
+    <path d="M270,541 L448,541" fill="none" stroke="#8a909a" stroke-width="1.4" marker-start="url(#a)" marker-end="url(#a)"/>
+    <path d="M520,504 L520,484 L318,484 L318,440" fill="none" stroke="#6b4fbb" stroke-width="1.4" marker-end="url(#a)"/>
+    <text x="330" y="479" font-size="9.5" fill="#6b4fbb">edits (PATCH)</text>
+    <path d="M640,450 L640,504" fill="none" stroke="#8a909a" stroke-width="1.4" marker-end="url(#a)"/>
+    <text x="646" y="482" font-size="9.5" fill="#8a909a">reads</text>
+    
+    <path d="M110,506 L110,172" fill="none" stroke="#c4c4bd" stroke-width="1.2" stroke-dasharray="3 4" marker-end="url(#a)"/>
+    <text x="116" y="300" font-size="9.5" fill="#8a909a" transform="rotate(-90 116 300)">button on the dashboard</text>
+  </svg>
+
+  <div class="legend">
+    <span><span class="sw" style="border-color:#0b7a55;background:#e3f4ec"></span>Live external data / database</span>
+    <span><span class="sw" style="border-color:#3a4bd6;background:#eceefe"></span>Gemini Flash + pipeline-owned signal columns</span>
+    <span><span class="sw" style="border-color:#6b4fbb;background:#f0ebfb"></span>Vikram-owned, protected columns</span>
+    <span><span class="sw" style="border-color:#8a909a;border-style:dashed;background:#fff"></span>Optional / monitoring path</span>
+    <span style="margin-left:auto">Numbers match the component table on page 2.</span>
+  </div>
+  <div class="foot"><span>VC Signal Desk · Components Map · page 1 of 2</span><span>Also live in the app at /architecture</span></div>
+</section>
+
+<!-- ================= PAGE 2: COMPONENTS ================= -->
+<section class="page">
+  <header>
+    <div><h1>Components <small>· responsibilities, data flow and ownership</small></h1></div>
+    <div class="meta">All AI tasks use <b>Gemini Flash</b> (gemini-3.8-flash → 3.7-flash → flash-latest → 3-flash-preview fallback).<br>No other model or LLM provider is used.</div>
+  </header>
+
+  <div class="cols">
+    <div>
+      <table>
+        <thead><tr><th>#</th><th>Component</th><th>Implementation</th><th>Responsibility</th></tr></thead>
+        <tbody>
+          <tr><td class="n">1</td><td class="c">Vercel Cron</td><td class="t">vercel.json → /api/cron</td><td>Starts a scan Mon &amp; Thu 09:30 IST, before Vikram works his pipeline. A 10:00 trigger only resumes a stalled run. Protected by CRON_SECRET.</td></tr>
+          <tr><td class="n">2</td><td class="c">Refresh now</td><td class="t">POST /api/run</td><td>On-demand scan for the evaluator. Public by design (no login), rate-limited by a 5-minute cooldown.</td></tr>
+          <tr><td class="n">3</td><td class="c">Run orchestrator</td><td class="t">lib/pipeline.ts, after()</td><td>Processes investors in batches of 8, records progress after each batch, stays inside the 300 s function limit and hands off to /api/run/continue. Resumes stalled runs.</td></tr>
+          <tr><td class="n">4</td><td class="c">Google News RSS</td><td class="t">lib/sources.ts</td><td>Live news about each firm and partner from the last 30 days. Publication dates come from the publisher.</td></tr>
+          <tr><td class="n">5</td><td class="c">Bing News RSS</td><td class="t">lib/sources.ts</td><td>Second live news source with direct article URLs, so signals link straight to the publisher.</td></tr>
+          <tr><td class="n">6</td><td class="c">Gemini + Google Search</td><td class="t">GEMINI_GROUNDING=on</td><td>Optional grounded search for blogs, podcasts and events. Built and wired, but off: the free-tier key has no grounding quota.</td></tr>
+          <tr><td class="n">7</td><td class="c">Gemini Flash classifier</td><td class="t">lib/gemini.ts · JSON schema</td><td>One call per 8 investors. Decides if each item is really about the investor (rejects same-name people and passing mentions), signal type, relevance to B2B logistics SaaS (0–100), same-event grouping, a why-now note and an opening line.</td></tr>
+          <tr><td class="n">8</td><td class="c">Scoring rules</td><td class="t">lib/scoring.ts</td><td>Deterministic follow-up score and recommended action. The same evidence always gives the same score.</td></tr>
+          <tr><td class="n">9</td><td class="c">vc_apply_signal()</td><td class="t">Postgres function</td><td>The pipeline's only write path into Vikram's table: last_signal_date, signal_summary, follow_up_score, recommended_action.</td></tr>
+          <tr><td class="n">10</td><td class="c">vc_investors</td><td class="t">Supabase table</td><td>Vikram's pipeline of 50 investors. Always reflects the latest run.</td></tr>
+          <tr><td class="n">11</td><td class="c">Guard trigger</td><td class="t">vc_guard_columns</td><td>Rejects any pipeline write to status, last_contact_date or notes, enforced by the database itself.</td></tr>
+          <tr><td class="n">12</td><td class="c">Audit tables</td><td class="t">vc_runs · vc_assessments · vc_manual_edits</td><td>Run history, Gemini calls, errors, MD5 fingerprint of manual columns before and after each run, all evidence and rejected items, and Vikram's edit log.</td></tr>
+          <tr><td class="n">13</td><td class="c">vc_update_manual()</td><td class="t">Postgres function</td><td>Vikram's write path: manual columns only, and every change is logged.</td></tr>
+          <tr><td class="n">14</td><td class="c">Dashboard</td><td class="t">Next.js 16 · Vercel bom1</td><td>Server-rendered pages. The Supabase secret key never reaches the browser.</td></tr>
+          <tr><td class="n">15</td><td class="c">Vikram / evaluator</td><td class="t">browser</td><td>Reads who to contact and why, opens evidence, edits notes, triggers refreshes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div>
+      <div class="box">
+        <h2>One run, step by step</h2>
+        <ol>
+          <li>Cron (1) or Refresh now (2) starts a run; the orchestrator (3) fingerprints the 🔒 columns.</li>
+          <li>For 8 investors at a time, query Google News (4) and Bing News (5) live: 4 searches per investor.</li>
+          <li>Drop duplicates and anything older than 30 days (logged as rejected).</li>
+          <li>One Gemini Flash call (7) classifies the whole batch.</li>
+          <li>Merge articles about the same event; scoring rules (8) pick the strongest signal.</li>
+          <li>Write the 4 signal columns via vc_apply_signal (9); store full evidence in audit tables (12).</li>
+          <li>If every source fails for an investor, leave its row unchanged. A failure never counts as "quiet".</li>
+          <li>Repeat until all 50 are done, handing off to a new invocation when needed; then fingerprint again and record ✓ untouched.</li>
+        </ol>
+      </div>
+
+      <div class="box">
+        <h2>Column ownership</h2>
+        <div class="own">
+          <div class="m"><b>🔒 Vikram</b>status · last_contact_date · notes<br>Written only via vc_update_manual (13)</div>
+          <div class="s"><b>⟳ Pipeline</b>last_signal_date · signal_summary · follow_up_score · recommended_action<br>Written only via vc_apply_signal (9)</div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Follow-up score rubric (out of 100)</h2>
+        <table class="mini">
+          <tr><td>Relevance to B2B logistics SaaS</td><td><b>35</b></td><td>Gemini 0–100 × 0.35</td></tr>
+          <tr><td>Recency</td><td><b>30</b></td><td>30 × (1 − days ÷ 40)</td></tr>
+          <tr><td>Signal type</td><td><b>15</b></td><td>investment 15 … portfolio news 8</td></tr>
+          <tr><td>Evidence quality</td><td><b>10</b></td><td>dated article 10 · unconfirmed 3</td></tr>
+          <tr><td>Relationship</td><td><b>10</b></td><td>yet to reach out 10 … contacted &lt;7 days ago 1</td></tr>
+        </table>
+        <div style="margin-top:5px">
+          <span class="pill p-hot">Reach out this week</span> score ≥ 70 and relevance ≥ 70 ·
+          <span class="pill p-warm">Tailored note</span> score ≥ 55 and relevance ≥ 45
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>VC Signal Desk · Components Map · page 2 of 2</span><span>Secrets (Supabase secret key, Gemini key, CRON_SECRET) live only in Vercel environment variables.</span></div>
+</section>
+</body>
+</html>
