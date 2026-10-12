@@ -63,7 +63,7 @@ arithmetic, so the same evidence always gives the same score:
 | Evidence: publisher-dated or verified page 10 · search result 6 · unconfirmed 3 | 10 |
 | Relationship: yet to reach out 10 · waiting 14+ days 9 · in conversation 7 · waiting 7–13 days 5 · passed 2 · contacted under 7 days ago 1 | 10 |
 
-**Reach out this week** needs a score of 70+ **and** relevance of 60+. **Tailored note** needs 55+ and relevance of 30+.
+**Reach out (or follow up) this week** needs a score of 70+ **and** logistics relevance of 70+. **Tailored note** needs 55+ and relevance of 45+.
 Overrides: contacted under 7 days ago → wait; passed → do not pursue; no signal → hold.
 
 ### Reliability choices

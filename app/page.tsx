@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSnapshot, fmtIST } from "@/lib/data";
-import { actionTone } from "@/lib/scoring";
+import { actionTone, THRESHOLDS } from "@/lib/scoring";
 import { ActionChip, SignalCard } from "@/components/bits";
 import { SIGNAL_TYPE_LABEL } from "@/lib/types";
 
@@ -30,15 +30,15 @@ export default async function PriorityQueue() {
           <div className="eyebrow">Briefing · week of {week}</div>
           <h1>
             {assessed.length ? (
-              <>{actionable.length} of {rows.length} VCs are worth reaching out to this week</>
+              <>{hot.length} of {rows.length} VCs are worth contacting this week</>
             ) : (
               <>Your pipeline hasn&apos;t been scanned yet</>
             )}
           </h1>
           <p>
             Each recommendation is backed by an observable signal from the last 30 days: something they invested
-            in, wrote, said or appeared at, with a link to the source. Quiet investors are listed separately so you
-            know where not to spend energy.
+            in, wrote, said or appeared at, with a link to the source.{" "}
+            {assessed.length > 0 && <>{warm.length} more are worth a tailored note, and {quiet.length} have gone quiet.</>}
           </p>
         </div>
       </header>
@@ -132,7 +132,7 @@ export default async function PriorityQueue() {
             <div className="callout accent small">
               <b>How the score works.</b> Logistics relevance 35 + recency 30 + signal type 15 + evidence quality 10 +
               relationship 10 = 100. Gemini Flash only classifies the evidence; the score itself is fixed arithmetic so the same
-              evidence always gets the same score. Reach out this week needs 70+ and relevance 60+; a tailored note needs 55+ and relevance 30+.{" "}
+              evidence always gets the same score. Reach out this week needs {THRESHOLDS.reachOut}+ and logistics relevance {THRESHOLDS.reachOutRelevance}+; a tailored note needs {THRESHOLDS.tailored}+ and relevance {THRESHOLDS.tailoredRelevance}+.{" "}
               <Link href="/architecture#scoring">Full method →</Link>
             </div>
           </section>

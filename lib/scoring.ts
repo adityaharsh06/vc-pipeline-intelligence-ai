@@ -30,9 +30,9 @@ export const EVIDENCE_POINTS = {
 // A high score alone is not enough: the signal must also be on-thesis.
 export const THRESHOLDS = {
   reachOut: 70,
-  reachOutRelevance: 60,
+  reachOutRelevance: 70,
   tailored: 55,
-  tailoredRelevance: 30,
+  tailoredRelevance: 45,
 } as const;
 export const WINDOW_DAYS = 30;
 
@@ -77,7 +77,8 @@ export function recommendAction(inv: Investor, score: number | null, now: Date, 
   if (inv.status === "waiting_response" && inv.last_contact_date) {
     const d = daysBetween(inv.last_contact_date, now);
     if (d < 7) return `Wait - you contacted them ${d} day${d === 1 ? "" : "s"} ago`;
-    if (tailored) return "Follow up this week - reference their recent activity";
+    if (reachOut) return "Follow up this week - reference their recent activity";
+    if (tailored) return "Reach out with a tailored note - you are waiting on a reply";
   }
   if (reachOut) return "Reach out this week";
   if (tailored) return "Reach out with a tailored note";
