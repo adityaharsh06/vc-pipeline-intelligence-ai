@@ -2,7 +2,8 @@ import Link from "next/link";
 import { getSnapshot, fmtIST } from "@/lib/data";
 import { actionTone, THRESHOLDS } from "@/lib/scoring";
 import { ActionChip, SignalCard } from "@/components/bits";
-import { SIGNAL_TYPE_LABEL } from "@/lib/types";
+import { SIGNAL_TYPE_LABEL, type SignalType } from "@/lib/types";
+import { Donut, SignalTypeBars, StatIcon } from "@/components/Charts";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +21,12 @@ export default async function PriorityQueue() {
   const top = actionable.slice(0, 5);
   const rest = active.filter((r) => !top.includes(r));
   const unchecked = rows.length - assessed.length;
+
+  const typeData = (Object.keys(SIGNAL_TYPE_LABEL) as SignalType[]).map((type) => {
+    const sigs = active.map((r) => r.latest!.best_signal!).filter((s) => s.type === type);
+    const onThesis = sigs.filter((s) => s.relevance >= THRESHOLDS.reachOutRelevance).length;
+    return { type, onThesis, other: sigs.length - onThesis };
+  });
 
   const week = new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", day: "numeric", month: "long" });
 
@@ -50,10 +57,36 @@ export default async function PriorityQueue() {
       ) : (
         <>
           <div className="stats">
-            <div className="panel stat hot"><div className="n">{hot.length}</div><div className="l">Reach out this week</div></div>
-            <div className="panel stat warm"><div className="n">{warm.length}</div><div className="l">Worth a tailored note</div></div>
-            <div className="panel stat"><div className="n">{quiet.length}</div><div className="l"><Link href="/quiet">Quiet: no signal in 30 days →</Link></div></div>
-            <div className="panel stat"><div className="n">{rows.length}</div><div className="l">Tracked{unchecked ? ` · ${unchecked} not yet checked` : ""}</div></div>
+            <div className="stat"><StatIcon name="send" /><div className="l">Reach out this week</div><div className="n">{hot.length}</div></div>
+            <div className="stat"><StatIcon name="note" /><div className="l">Worth a tailored note</div><div className="n">{warm.length}</div></div>
+            <div className="stat"><StatIcon name="moon" /><div className="l"><Link href="/quiet">Quiet: no signal in 30 days</Link></div><div className="n">{quiet.length}</div></div>
+            <div className="stat"><StatIcon name="users" /><div className="l">Tracked{unchecked ? ` · ${unchecked} unchecked` : ""}</div><div className="n">{rows.length}</div></div>
+          </div>
+
+          <div className="charts">
+            <section className="panel pad">
+              <div className="chart-head">
+                <h2>Signals this week by type</h2>
+                <div className="legend">
+                  <span><i style={{ background: "#3d7bf5" }} />On-thesis (logistics relevance {THRESHOLDS.reachOutRelevance}+)</span>
+                  <span><i style={{ background: "#ffa24f" }} />Other activity</span>
+                </div>
+              </div>
+              <SignalTypeBars data={typeData} />
+            </section>
+            <section className="panel pad">
+              <div className="chart-head"><h2>Pipeline at a glance</h2><span className="muted small">{rows.length} investors</span></div>
+              <Donut
+                center={String(hot.length)}
+                caption="to contact now"
+                slices={[
+                  { label: "Reach out", value: hot.length, color: "#33b864", sub: `${hot.length} VCs` },
+                  { label: "Tailored note", value: warm.length, color: "#ff9a4a", sub: `${warm.length} VCs` },
+                  { label: "Low priority", value: active.length - hot.length - warm.length, color: "#3d7bf5", sub: `${active.length - hot.length - warm.length} VCs` },
+                  { label: "Quiet", value: quiet.length, color: "#8a6cf3", sub: `${quiet.length} VCs` },
+                ]}
+              />
+            </section>
           </div>
 
           {changes.length > 0 && (

@@ -1,5 +1,6 @@
 import { getSnapshot, fmtIST, nextScheduled } from "@/lib/data";
 import GuardTest from "@/components/GuardTest";
+import { StatIcon } from "@/components/Charts";
 import { db } from "@/lib/supabase";
 import type { Run } from "@/lib/types";
 
@@ -46,10 +47,10 @@ export default async function RunsPage() {
       </header>
 
       <div className="stats">
-        <div className="panel stat"><div className="n" style={{ fontSize: 20 }}>{current ? current.status : "—"}</div><div className="l">Latest run status</div></div>
-        <div className="panel stat"><div className="n" style={{ fontSize: 20 }}>{next ? fmtIST(next) : "—"}</div><div className="l">Next scheduled run (Mon &amp; Thu 09:30 IST)</div></div>
-        <div className="panel stat"><div className="n">{current?.gemini_calls ?? 0}</div><div className="l">Gemini Flash calls, latest run</div></div>
-        <div className="panel stat"><div className="n">{current?.error_count ?? 0}</div><div className="l">Investors that failed (left unchanged)</div></div>
+        <div className="stat"><StatIcon name="check" /><div className="l">Latest run status</div><div className="n" style={{ fontSize: 22, textTransform: "capitalize" }}>{current ? current.status : "—"}</div></div>
+        <div className="stat"><StatIcon name="clock" /><div className="l">Next auto-run (Mon &amp; Thu)</div><div className="n" style={{ fontSize: 20 }}>{next ? fmtIST(next) : "—"}</div></div>
+        <div className="stat"><StatIcon name="bolt" /><div className="l">Gemini Flash calls, latest run</div><div className="n">{current?.gemini_calls ?? 0}</div></div>
+        <div className="stat"><StatIcon name="alert" /><div className="l">Failed investors (left unchanged)</div><div className="n">{current?.error_count ?? 0}</div></div>
       </div>
 
       <section className="section grid2">
