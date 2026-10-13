@@ -1,5 +1,6 @@
 import { getSnapshot } from "@/lib/data";
 import PipelineTable from "@/components/PipelineTable";
+import ManageBar from "@/components/ManageBar";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +23,8 @@ export default async function PipelinePage() {
             pipeline is blocked from writing them by a database trigger. Blue columns are rewritten on every run.
           </p>
         </div>
-        <a className="btn" href="/api/export">Export CSV</a>
       </header>
+      <ManageBar />
       <PipelineTable rows={data} />
     </div>
   );

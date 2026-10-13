@@ -18,6 +18,7 @@ export type Investor = {
   follow_up_score: number | null;
   recommended_action: string | null;
   updated_at: string;
+  source?: "seed" | "added"; // "added" = added from the app, removable there
 };
 
 export type SignalType =
@@ -75,7 +76,7 @@ export type Assessment = {
 
 export type Run = {
   id: string;
-  trigger: "cron" | "manual";
+  trigger: "cron" | "manual" | "single";
   status: "running" | "succeeded" | "partial" | "failed" | "stalled";
   started_at: string;
   finished_at: string | null;

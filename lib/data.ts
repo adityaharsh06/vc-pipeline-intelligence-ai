@@ -52,7 +52,7 @@ export async function getSnapshot() {
     }
   }
 
-  const lastDone = allRuns.find((r) => r.status === "succeeded" || r.status === "partial") ?? null;
+  const lastDone = allRuns.find((r) => (r.status === "succeeded" || r.status === "partial") && r.trigger !== "single") ?? null;
   return { rows, runs: allRuns, current: current ?? allRuns[0] ?? null, lastDone, changes };
 }
 
@@ -102,12 +102,16 @@ export function daysAgo(dateIso: string) {
   return d <= 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
 }
 
-// "Reach out this week" list: same rule as the priority queue (active signal, hot action), best first.
-export async function getOutreachList() {
+// Investors with an active signal whose recommended action has the given tone, best first.
+// hot = "Reach out this week" (outreach emails), warm = "Worth a tailored note" (warm-up kit).
+export async function getListByTone(tone: "hot" | "warm") {
   const { rows, lastDone } = await getSnapshot();
   const list = rows
-    .filter((r) => r.latest?.state === "active" && r.latest.best_signal && actionTone(r.latest.action) === "hot")
+    .filter((r) => r.latest?.state === "active" && r.latest.best_signal && actionTone(r.latest.action) === tone)
     .sort((a, b) => (b.latest!.score ?? 0) - (a.latest!.score ?? 0))
     .map((r) => ({ inv: r.inv, a: r.latest! }));
   return { list, lastDone };
 }
+
+export const getOutreachList = () => getListByTone("hot");
+export const getWarmupList = () => getListByTone("warm");

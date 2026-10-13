@@ -110,6 +110,8 @@ export function SignalCard({ inv, a, rank }: { inv: Investor; a: Assessment; ran
         <div className="card-actions">
           {actionTone(a.action) === "hot" ? (
             <Link className="btn primary" href={`/outreach#${inv.id}`}>✉ Draft full email</Link>
+          ) : actionTone(a.action) === "warm" ? (
+            <Link className="btn primary" href={`/warmup#${inv.id}`}>✍ Warm-up kit</Link>
           ) : (
             a.opening_line && <a className="btn" href={mailto(inv, a)}>Draft email ↗</a>
           )}

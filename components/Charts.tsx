@@ -58,10 +58,10 @@ export function SignalTypeBars({ data }: { data: { type: SignalType; onThesis: n
         const h2 = B - y(d.other);
         return (
           <g key={d.type}>
-            {d.onThesis > 0 && <rect x={cx - bw / 2} y={B - h1} width={bw} height={h1} rx={4} fill="url(#gBlue)" />}
-            {d.other > 0 && <rect x={cx - bw / 2} y={B - h1 - h2} width={bw} height={h2} rx={4} fill="url(#gOrange)" />}
+            {d.onThesis > 0 && <rect className="bar-rect" x={cx - bw / 2} y={B - h1} width={bw} height={h1} rx={4} fill="url(#gBlue)" />}
+            {d.other > 0 && <rect className="bar-rect" x={cx - bw / 2} y={B - h1 - h2} width={bw} height={h2} rx={4} fill="url(#gOrange)" />}
             {d.onThesis + d.other > 0 && (
-              <text x={cx} y={B - h1 - h2 - 6} textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#5f6b85">{d.onThesis + d.other}</text>
+              <text className="bar-label" x={cx} y={B - h1 - h2 - 6} textAnchor="middle" fontSize="11.5" fontWeight="700" fill="#5f6b85">{d.onThesis + d.other}</text>
             )}
             <text x={cx} y={B + 18} textAnchor="middle" fontSize="11.5" fill="#5f6b85">{TYPE_SHORT[d.type]}</text>
           </g>
@@ -86,6 +86,7 @@ export function Donut({ slices, center, caption }: { slices: DonutSlice[]; cente
           {slices.map((s, i) =>
             s.value ? (
               <circle
+                className="donut-arc"
                 key={s.label} cx="100" cy="100" r={R} fill="none" stroke={s.color} strokeWidth="22" strokeLinecap="round"
                 strokeDasharray={`${Math.max(0, lens[i] - GAP)} ${C}`} strokeDashoffset={-offsets[i]}
                 transform="rotate(-90 100 100)"

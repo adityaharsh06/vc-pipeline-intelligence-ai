@@ -21,12 +21,18 @@ lists who has gone quiet, and updates his Supabase table, **without ever touchin
    email for each VC on the list, based on their signal (first email, follow-up or next step, depending on status). Switch
    tone (shorter / warmer / more formal), edit, **Open in Gmail** or copy, then **Mark as contacted**, which updates
    Vikram's own status and last-contact columns. Drafts only: the app never sends email.
-3. **Quiet VCs (`/quiet`)**: investors with no verifiable activity in 30 days, so Vikram knows where not to spend energy.
-4. **All investors (`/pipeline`)**: the live Supabase table. Purple columns are Vikram's; blue columns are
+3. **Warm-up kit (`/warmup`)**: from the orange "Worth a tailored note" card. For VCs whose signal is only partly
+   on-thesis, Gemini Flash drafts a LinkedIn connection note (under 300 characters, with a live counter) and a
+   warm-intro request to a mutual contact, with a forwardable blurb.
+4. **Quiet VCs (`/quiet`)**: investors with no verifiable activity in 30 days, so Vikram knows where not to spend energy.
+5. **All investors (`/pipeline`)**: the live Supabase table. From the pink "Tracked" card: **+ Add investor**
+   (scanned for live signals as soon as it is saved), **Export CSV**, and a **follow-up calendar (.ics)** with reminders to
+   email this week's VCs and follow up 7 days after each contact. Investors added from the app can be removed there;
+   the original 50 cannot. Purple columns are Vikram's; blue columns are
    pipeline-owned. **Edit a note → press Refresh now → the note survives.**
-5. **Runs & audit (`/runs`)**: run history, Gemini calls per run, and a **"Try to overwrite a note as the
+6. **Runs & audit (`/runs`)**: run history, Gemini calls per run, and a **"Try to overwrite a note as the
    pipeline"** button that shows the database refusing the write.
-6. **Any investor page**: every signal found, plus the **evidence that was rejected and why** (wrong person with the same
+7. **Any investor page**: every signal found, plus the **evidence that was rejected and why** (wrong person with the same
    name, outside the 30-day window, roundup that only mentions the firm in passing).
 
 ## How it works
@@ -79,7 +85,7 @@ Overrides: contacted under 7 days ago → wait; passed → do not pursue; no sig
 - **Duplicate coverage is merged.** Seven articles about one deal become one signal marked "covered by 7 outlets".
 
 ## Tech
-Next.js 16 (App Router, server-rendered) · Supabase Postgres · Gemini Flash via the OpenRouter gateway
+Next.js 16 (App Router, server-rendered) · GSAP animations · Supabase Postgres · Gemini Flash via the OpenRouter gateway
 (`google/gemini-3.7-flash` → `google/gemini-3.8-flash`, Google-only routing) · Vercel + Vercel Cron.
 All AI tasks use Gemini Flash; no other model or LLM provider is used.
 

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Run } from "@/lib/types";
 
@@ -23,6 +23,7 @@ const STATUS: Record<Run["status"], { label: string; cls: string }> = {
 
 export default function RunBar({ initial, nextIso }: { initial: Run | null; nextIso: string | null }) {
   const [run, setRun] = useState<Run | null>(initial);
+  const runRef = useRef<Run | null>(initial);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const router = useRouter();
@@ -31,11 +32,11 @@ export default function RunBar({ initial, nextIso }: { initial: Run | null; next
   const poll = useCallback(async () => {
     const r = await fetch("/api/run", { cache: "no-store" }).then((x) => x.json()).catch(() => null);
     if (!r?.run) return;
-    setRun((prev) => {
-      if (prev?.status === "running" && r.run.status !== "running") router.refresh();
-      else if (prev && r.run.processed !== prev.processed) router.refresh();
-      return r.run;
-    });
+    // Refresh the page data when the run finishes or makes progress (outside the state updater).
+    const prev = runRef.current;
+    if (prev && (prev.status !== r.run.status || prev.processed !== r.run.processed)) router.refresh();
+    runRef.current = r.run;
+    setRun(r.run);
   }, [router]);
 
   useEffect(() => {
@@ -54,6 +55,7 @@ export default function RunBar({ initial, nextIso }: { initial: Run | null; next
       setMsg(body.error ?? "Could not start a refresh");
       return;
     }
+    runRef.current = body.run;
     setRun(body.run);
   }
 
@@ -70,7 +72,7 @@ export default function RunBar({ initial, nextIso }: { initial: Run | null; next
             <span className="mono">Scanning {run.processed}/{run.total} investors</span>
           </span>
         ) : run ? (
-          <span><span className="k">Last refresh</span>{rel(run.finished_at ?? run.started_at)}</span>
+          <span suppressHydrationWarning><span className="k">Last refresh</span>{rel(run.finished_at ?? run.started_at)}</span>
         ) : (
           <span className="muted">No runs yet</span>
         )}

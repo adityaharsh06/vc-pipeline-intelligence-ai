@@ -58,9 +58,9 @@ export default async function PriorityQueue() {
         <>
           <div className="stats">
             <div className="stat"><StatIcon name="send" /><div className="l">Reach out this week</div><div className="n">{hot.length}</div>{hot.length > 0 && <Link className="cta" href="/outreach">✉ Draft {hot.length} emails →</Link>}</div>
-            <div className="stat"><StatIcon name="note" /><div className="l">Worth a tailored note</div><div className="n">{warm.length}</div></div>
+            <div className="stat"><StatIcon name="note" /><div className="l">Worth a tailored note</div><div className="n">{warm.length}</div>{warm.length > 0 && <Link className="cta" href="/warmup">✍ Warm-up kit →</Link>}</div>
             <div className="stat"><StatIcon name="moon" /><div className="l"><Link href="/quiet">Quiet: no signal in 30 days</Link></div><div className="n">{quiet.length}</div></div>
-            <div className="stat"><StatIcon name="users" /><div className="l">Tracked{unchecked ? ` · ${unchecked} unchecked` : ""}</div><div className="n">{rows.length}</div></div>
+            <div className="stat"><StatIcon name="users" /><div className="l">Tracked{unchecked ? ` · ${unchecked} unchecked` : ""}</div><div className="n">{rows.length}</div><Link className="cta" href="/pipeline#manage">⚙ Manage pipeline →</Link></div>
           </div>
 
           <div className="charts">

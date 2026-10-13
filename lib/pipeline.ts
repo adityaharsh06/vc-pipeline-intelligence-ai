@@ -428,7 +428,12 @@ export async function assessInvestor(inv: Investor, now: Date, counter: Counter)
 // ---------- Run orchestration (chunked so 50 investors never hit the function time limit) ----------
 
 export async function latestRun(): Promise<Run | null> {
-  const { data } = await db().from("vc_runs").select("*").order("started_at", { ascending: false }).limit(1);
+  const { data } = await db()
+    .from("vc_runs")
+    .select("*")
+    .neq("trigger", "single")
+    .order("started_at", { ascending: false })
+    .limit(1);
   const run = (data?.[0] as Run) ?? null;
   if (run && run.status === "running" && Date.now() - new Date(run.heartbeat_at).getTime() > STALL_MS) {
     await db().from("vc_runs").update({ status: "stalled" }).eq("id", run.id);
@@ -499,36 +504,7 @@ export async function processChunk(runId: string, origin: string) {
     }
     await Promise.all(
       batch.map(async (inv, i) => {
-        let result = results[i];
-        // Failed checks never overwrite Vikram's table: an error is not the same as "quiet".
-        if (result.state !== "error") {
-          const { error } = await s.rpc("vc_apply_signal", {
-            p_id: inv.id,
-            p_last_signal_date: result.best?.date ?? inv.last_signal_date,
-            p_summary: result.summary,
-            p_score: result.score,
-            p_action: result.action,
-          });
-          if (error) result = { ...result, state: "error", error: `DB write rejected: ${error.message}` };
-        }
-        await s.from("vc_assessments").upsert(
-          {
-            run_id: runId,
-            investor_id: inv.id,
-            state: result.state,
-            score: result.score,
-            prev_score: prevScore.get(inv.id) ?? null,
-            breakdown: result.breakdown,
-            best_signal: result.best,
-            signals: result.signals,
-            rejected: result.rejected,
-            why: result.why,
-            opening_line: result.opening_line,
-            action: result.action || null,
-            error: result.error,
-          },
-          { onConflict: "run_id,investor_id", ignoreDuplicates: true },
-        );
+        await saveResult(runId, inv, results[i], prevScore.get(inv.id) ?? null);
         processedNow++;
       }),
     );
@@ -538,7 +514,6 @@ export async function processChunk(runId: string, origin: string) {
         processed: doneIds.size + processedNow,
         gemini_calls: (run.gemini_calls ?? 0) + counter.calls,
         heartbeat_at: new Date().toISOString(),
-        ...(counter.searchOff ? { notes: "Gemini Google Search grounding unavailable (API quota); signals came from Google News + Bing News, classified by Gemini Flash." } : {}),
       })
       .eq("id", runId);
   }
@@ -553,6 +528,70 @@ export async function processChunk(runId: string, origin: string) {
     return;
   }
   await finalizeRun(runId);
+}
+
+// Writes one investor's result: the four signal columns (unless the check failed) and the full assessment.
+async function saveResult(runId: string, inv: Investor, result: AssessmentResult, prevScore: number | null) {
+  const s = db();
+  // Failed checks never overwrite Vikram's table: an error is not the same as "quiet".
+  if (result.state !== "error") {
+    const { error } = await s.rpc("vc_apply_signal", {
+      p_id: inv.id,
+      p_last_signal_date: result.best?.date ?? inv.last_signal_date,
+      p_summary: result.summary,
+      p_score: result.score,
+      p_action: result.action,
+    });
+    if (error) result = { ...result, state: "error", error: `DB write rejected: ${error.message}` };
+  }
+  await s.from("vc_assessments").upsert(
+    {
+      run_id: runId,
+      investor_id: inv.id,
+      state: result.state,
+      score: result.score,
+      prev_score: prevScore,
+      breakdown: result.breakdown,
+      best_signal: result.best,
+      signals: result.signals,
+      rejected: result.rejected,
+      why: result.why,
+      opening_line: result.opening_line,
+      action: result.action || null,
+      error: result.error,
+    },
+    { onConflict: "run_id,investor_id", ignoreDuplicates: true },
+  );
+  return result;
+}
+
+// Scans one investor right away (used after adding someone from the app), logged as a "single" run.
+export async function scanSingle(investorId: string) {
+  const s = db();
+  const { data: inv } = await s.from("vc_investors").select("*").eq("id", investorId).single();
+  if (!inv) throw new Error("Investor not found");
+  const { data: run, error } = await s
+    .from("vc_runs")
+    .insert({ trigger: "single", total: 1, model: GEMINI_MODEL, notes: `Scan of newly added investor ${inv.firm}` })
+    .select("*")
+    .single();
+  if (error) throw new Error(error.message);
+  const counter: Counter = { calls: 0 };
+  const [result] = (await assessBatch([inv as Investor], new Date(), counter))!;
+  const saved = await saveResult(run.id, inv as Investor, result, null);
+  await s
+    .from("vc_runs")
+    .update({
+      status: saved.state === "error" ? "failed" : "succeeded",
+      finished_at: new Date().toISOString(),
+      processed: 1,
+      active_count: saved.state === "active" ? 1 : 0,
+      quiet_count: saved.state === "quiet" ? 1 : 0,
+      error_count: saved.state === "error" ? 1 : 0,
+      gemini_calls: counter.calls,
+    })
+    .eq("id", run.id);
+  return saved;
 }
 
 async function finalizeRun(runId: string) {

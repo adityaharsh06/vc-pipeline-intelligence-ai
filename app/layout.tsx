@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Nav from "@/components/Nav";
 import RunBar from "@/components/RunBar";
+import Motion from "@/components/Motion";
 import { latestRun } from "@/lib/pipeline";
 import { nextScheduled } from "@/lib/data";
 import "./globals.css";
@@ -28,6 +29,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <div className="main">
             <RunBar initial={run} nextIso={next?.toISOString() ?? null} />
             {children}
+            <Motion />
           </div>
         </div>
       </body>

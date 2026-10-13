@@ -86,15 +86,17 @@ export default function PipelineTable({ rows }: { rows: Row[] }) {
                     <Link href={`/investor/${r.inv.id}`}><b>{r.inv.firm}</b></Link>
                     <div className="small muted">{r.inv.name}</div>
                     <div className="tiny faint">{r.inv.kind} · {r.inv.geography}</div>
+                    {r.inv.source === "added" && <span className="chip accent" style={{ marginTop: 4, fontSize: 11 }}>Added by you</span>}
                   </td>
                   <td className="manual"><span className="chip lock">{STATUS_LABEL[r.inv.status]}</span></td>
                   <td className="manual mono small">{r.inv.last_contact_date ?? "—"}</td>
                   <td className="manual notes-cell small">
                     {r.inv.notes || <span className="faint">—</span>}
-                    <div>
+                    <div style={{ display: "flex", gap: 4 }}>
                       <button className="btn ghost" style={{ padding: "2px 8px", marginTop: 4, fontSize: 12 }} onClick={() => setEditing(r.inv.id)}>
                         Edit
                       </button>
+                      {r.inv.source === "added" && <RemoveButton id={r.inv.id} firm={r.inv.firm} />}
                     </div>
                   </td>
                   <td className="mono">
@@ -164,5 +166,25 @@ function Editor({ inv, onDone }: { inv: Investor; onDone: () => void }) {
         {err && <span className="small bad">{err}</span>}
       </div>
     </div>
+  );
+}
+
+function RemoveButton({ id, firm }: { id: string; firm: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  return (
+    <button
+      className="btn ghost"
+      style={{ padding: "2px 8px", marginTop: 4, fontSize: 12, color: "var(--hold)" }}
+      disabled={busy}
+      onClick={async () => {
+        if (!confirm(`Remove ${firm} from the pipeline? This deletes its signal history too.`)) return;
+        setBusy(true);
+        await fetch(`/api/investors/${id}`, { method: "DELETE" });
+        router.refresh();
+      }}
+    >
+      {busy ? "Removing…" : "Remove"}
+    </button>
   );
 }
