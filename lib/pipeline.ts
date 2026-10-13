@@ -436,8 +436,15 @@ export async function latestRun(): Promise<Run | null> {
     .limit(1);
   const run = (data?.[0] as Run) ?? null;
   if (run && run.status === "running" && Date.now() - new Date(run.heartbeat_at).getTime() > STALL_MS) {
-    await db().from("vc_runs").update({ status: "stalled" }).eq("id", run.id);
-    run.status = "stalled";
+    // Conditional write: never overwrite a run that finished between our read and this update.
+    const { data: marked } = await db()
+      .from("vc_runs")
+      .update({ status: "stalled" })
+      .eq("id", run.id)
+      .eq("status", "running")
+      .lt("heartbeat_at", new Date(Date.now() - STALL_MS).toISOString())
+      .select("id");
+    if (marked?.length) run.status = "stalled";
   }
   return run;
 }
