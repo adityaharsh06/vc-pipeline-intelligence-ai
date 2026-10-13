@@ -35,7 +35,7 @@ const TYPE_SHORT: Record<SignalType, string> = {
 export function SignalTypeBars({ data }: { data: { type: SignalType; onThesis: number; other: number }[] }) {
   const W = 600, H = 250, L = 34, B = 212, T = 14;
   const max = Math.max(5, ...data.map((d) => d.onThesis + d.other));
-  const top = Math.ceil(max / 5) * 5;
+  const top = Math.ceil((max + 1) / 5) * 5; // headroom so the tallest bar label is not clipped
   const step = (W - L - 10) / data.length;
   const bw = Math.min(26, step * 0.42);
   const y = (v: number) => B - ((B - T) * v) / top;
