@@ -1,22 +1,25 @@
-// Minimal Gemini REST client (no SDK): JSON output, optional Google Search grounding,
-// and rotation across Gemini Flash models when one is overloaded or out of daily quota.
+// Gemini Flash via the OpenRouter gateway (the course-provided access path).
+// Only Google models, served only by Google's own infrastructure; JSON output via json_schema.
 
-const ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models";
+const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 
-// All entries are Gemini Flash models. The first is preferred; the rest are used only when
-// the previous one is overloaded (503) or has used its daily free-tier quota (429).
-export const GEMINI_MODELS = (process.env.GEMINI_MODELS ||
-  "gemini-3.8-flash,gemini-3.7-flash,gemini-flash-latest,gemini-3-flash-preview")
+// All entries are Google Gemini Flash models on OpenRouter. The first is preferred; the next
+// is used only when the previous one is overloaded or unavailable.
+export const GEMINI_MODELS = (process.env.OPENROUTER_MODELS || "google/gemini-3.7-flash,google/gemini-3.8-flash")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
 export const GEMINI_MODEL = GEMINI_MODELS[0];
 
-// Grounded search costs a request per investor; off unless the key has quota for it.
-export const GROUNDING_ENABLED = process.env.GEMINI_GROUNDING === "on";
+// Make Google's own infrastructure serve every request (no third-party hosts).
+const PROVIDER = { only: ["google-vertex", "google-ai-studio"], allow_fallbacks: false };
 
-// Models that hit their daily quota (or are briefly overloaded) in this function instance.
-const exhausted = new Set<string>();
+// Grounded Google Search is not available through OpenRouter with Google-only routing;
+// the live signals come from the news feeds instead.
+export const GROUNDING_ENABLED = false;
+
+// Models that were unavailable in this function instance (cleared after a minute).
+const unavailable = new Set<string>();
 
 export type GroundingSource = { uri: string; title: string };
 
@@ -43,9 +46,14 @@ type Options = {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function retryDelaySec(body: string) {
-  const m = body.match(/"retryDelay":\s*"(\d+(?:\.\d+)?)s"/);
-  return m ? parseFloat(m[1]) : null;
+// OpenRouter strict json_schema requires additionalProperties: false on every object.
+function strictSchema(s: unknown): unknown {
+  if (Array.isArray(s)) return s.map(strictSchema);
+  if (!s || typeof s !== "object") return s;
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(s)) out[k] = strictSchema(v);
+  if (out.type === "object") out.additionalProperties = false;
+  return out;
 }
 
 function extractJson(text: string): unknown {
@@ -61,36 +69,39 @@ function extractJson(text: string): unknown {
 }
 
 export async function gemini<T>(prompt: string, opts: Options = {}): Promise<GeminiResult<T>> {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new GeminiError("GEMINI_API_KEY is not set", 0);
+  const key = process.env.OPENROUTER_API_KEY;
+  if (!key) throw new GeminiError("OPENROUTER_API_KEY is not set", 0);
+  if (opts.search) throw new GeminiError("Grounded search is not available via OpenRouter", 429);
 
   let useSchema = Boolean(opts.schema);
-  let useThinkingLevel = true;
   let lastError = "no Gemini Flash model available";
 
-  for (let attempt = 0; attempt < 8; attempt++) {
+  for (let attempt = 0; attempt < 6; attempt++) {
     const left = opts.deadline ? opts.deadline - Date.now() : 120_000;
     if (left < 8_000) throw new GeminiError("Out of time in this invocation", 408);
-    const model = GEMINI_MODELS.find((m) => !exhausted.has(m));
-    if (!model) throw new GeminiError(`All Gemini Flash models are out of quota (${lastError})`, 429);
+    const model = GEMINI_MODELS.find((m) => !unavailable.has(m)) ?? GEMINI_MODELS[0];
 
     const body: Record<string, unknown> = {
-      contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: opts.temperature ?? 0.2,
-        // Classification needs little reasoning; low thinking keeps each call fast.
-        ...(useThinkingLevel ? { thinkingConfig: { thinkingLevel: "low" } } : {}),
-        ...(useSchema ? { responseMimeType: "application/json", responseJsonSchema: opts.schema } : {}),
-      },
+      model,
+      messages: [{ role: "user", content: prompt }],
+      temperature: opts.temperature ?? 0.2,
+      reasoning: { effort: "low" }, // classification needs little reasoning; keeps calls fast
+      provider: PROVIDER,
+      ...(useSchema
+        ? { response_format: { type: "json_schema", json_schema: { name: "result", strict: true, schema: strictSchema(opts.schema) } } }
+        : {}),
     };
-    if (opts.search) body.tools = [{ google_search: {} }];
 
     opts.onCall?.(model);
     let res: Response;
     try {
-      res = await fetch(`${ENDPOINT}/${model}:generateContent`, {
+      res = await fetch(ENDPOINT, {
         method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": key },
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${key}`,
+          "x-title": "VC Signal Desk",
+        },
         body: JSON.stringify(body),
         signal: AbortSignal.timeout(Math.min(75_000, left - 3_000)),
       });
@@ -101,57 +112,43 @@ export async function gemini<T>(prompt: string, opts: Options = {}): Promise<Gem
     }
     const text = await res.text();
     if (process.env.GEMINI_DEBUG) {
-      console.error(`[gemini] ${model} search=${!!opts.search} -> ${res.status} ${res.ok ? "" : text.replace(/\s+/g, " ").slice(0, 160)}`);
+      console.error(`[gemini] ${model} -> ${res.status} ${res.ok ? "" : text.replace(/\s+/g, " ").slice(0, 200)}`);
     }
 
-    if (res.status === 400 && useThinkingLevel && /thinking/i.test(text)) {
-      useThinkingLevel = false;
-      continue;
-    }
-    if (res.status === 400 && useSchema && /response|schema|mime|tool/i.test(text)) {
-      useSchema = false;
+    if (res.status === 402) throw new GeminiError("OpenRouter credits exhausted", 402);
+    if (res.status === 400 && useSchema && /schema|response_format|json/i.test(text)) {
+      useSchema = false; // fall back to prompting for JSON text
       continue;
     }
     if (res.status === 429) {
-      // Grounded search on a free key: fail fast so the caller can switch grounding off.
-      if (opts.search) throw new GeminiError("Google Search grounding quota exhausted", 429);
-      const delay = retryDelaySec(text);
-      if (delay === null || delay > 90 || /PerDay/i.test(text)) {
-        exhausted.add(model); // daily cap: move to the next Flash model
-        lastError = `${model} daily quota reached`;
-        continue;
-      }
-      await sleep(Math.ceil(delay * 1000));
+      lastError = `${model} rate limited`;
+      await sleep(2000 * 2 ** Math.min(attempt, 3));
       continue;
     }
-    if (res.status >= 500) {
-      // Overloaded: use the next model for a minute, then come back to the preferred one.
-      lastError = `${model} overloaded (${res.status})`;
-      const i = GEMINI_MODELS.indexOf(model);
-      if (GEMINI_MODELS.slice(i + 1).some((m) => !exhausted.has(m))) {
-        exhausted.add(model);
-        setTimeout(() => exhausted.delete(model), 60_000);
+    if (res.status >= 500 || res.status === 404) {
+      // Overloaded or unavailable: use the next model for a minute.
+      lastError = `${model} unavailable (${res.status})`;
+      if (GEMINI_MODELS.some((m) => m !== model && !unavailable.has(m))) {
+        unavailable.add(model);
+        setTimeout(() => unavailable.delete(model), 60_000);
       } else {
         await sleep(2000 * (attempt + 1));
       }
       continue;
     }
-    if (!res.ok) throw new GeminiError(`Gemini ${res.status}: ${text.slice(0, 300)}`, res.status);
+    if (!res.ok) throw new GeminiError(`OpenRouter ${res.status}: ${text.slice(0, 300)}`, res.status);
 
     const json = JSON.parse(text);
-    const cand = json.candidates?.[0];
-    const out: string = (cand?.content?.parts ?? [])
-      .map((p: { text?: string; thought?: boolean }) => (p.thought ? "" : p.text ?? ""))
-      .join("");
+    if (json.error) {
+      lastError = json.error.message ?? "provider error";
+      continue;
+    }
+    const out: string = json.choices?.[0]?.message?.content ?? "";
     if (!out.trim()) {
       lastError = "empty answer";
       continue;
     }
-    const meta = cand?.groundingMetadata ?? {};
-    const sources: GroundingSource[] = (meta.groundingChunks ?? [])
-      .map((c: { web?: { uri?: string; title?: string } }) => ({ uri: c.web?.uri ?? "", title: c.web?.title ?? "" }))
-      .filter((s: GroundingSource) => s.uri);
-    return { data: extractJson(out) as T, sources, queries: meta.webSearchQueries ?? [], model };
+    return { data: extractJson(out) as T, sources: [], queries: [], model: json.model ?? model };
   }
   throw new GeminiError(`Gemini failed after retries (${lastError})`, 0);
 }

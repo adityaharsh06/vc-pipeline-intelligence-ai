@@ -20,8 +20,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const run = await latestRun().catch(() => null);
   const next = nextScheduled();
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <body>
+    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
+      {/* Browser extensions (e.g. Grammarly) add attributes to <body>; ignore those mismatches. */}
+      <body suppressHydrationWarning>
         <div className="shell">
           <Nav />
           <div className="main">

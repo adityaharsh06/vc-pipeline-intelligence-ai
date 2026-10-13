@@ -32,7 +32,6 @@ Vercel Cron (Mon & Thu 09:30 IST, resume check 10:00) ─┐
 "Refresh now" (public, 5-min cooldown)┴─► Run orchestrator (batches of 8, chunked across invocations)
         │
         ├─► Google News RSS + Bing News RSS   (live, publisher-dated, 4 queries per investor)
-        ├─► [optional] Gemini Flash + Google Search grounding (GEMINI_GROUNDING=on, needs paid quota)
         ├─► Gemini Flash classifier, one call per 8 investors:
         │     about this investor? · signal type · relevance to B2B logistics SaaS · same-event grouping
         │     · why-now note · opening line
@@ -69,21 +68,21 @@ Overrides: contacted under 7 days ago → wait; passed → do not pursue; no sig
 ### Reliability choices
 - **Failures are never reported as "quiet".** If every source fails for an investor, their row is left unchanged
   and the run is marked partial.
-- **Free-tier aware.** Classification is batched (about 7 Gemini calls per 50-investor run), and calls rotate across
-  Gemini Flash models (`GEMINI_MODELS`) if one is overloaded or out of daily quota.
+- **Cheap and resilient.** Classification is batched (about 7 Gemini calls per 50-investor run), and calls fall back to
+  the next Gemini Flash model (`OPENROUTER_MODELS`) if one is overloaded.
 - **No timeouts.** Runs are processed in chunks with Next.js `after()` and hand off to `/api/run/continue` before the
   300 s function limit. A stalled run is resumed rather than restarted.
 - **Duplicate coverage is merged.** Seven articles about one deal become one signal marked "covered by 7 outlets".
 
 ## Tech
-Next.js 16 (App Router, server-rendered) · Supabase Postgres · Gemini Flash REST API (`gemini-3.8-flash` →
-`gemini-3.7-flash` → `gemini-flash-latest` → `gemini-3-flash-preview`) · Vercel + Vercel Cron.
+Next.js 16 (App Router, server-rendered) · Supabase Postgres · Gemini Flash via the OpenRouter gateway
+(`google/gemini-3.7-flash` → `google/gemini-3.8-flash`, Google-only routing) · Vercel + Vercel Cron.
 All AI tasks use Gemini Flash; no other model or LLM provider is used.
 
 ## Run locally
 ```bash
 npm install
-cp .env.example .env.local   # fill in SUPABASE_URL, SUPABASE_SECRET_KEY, GEMINI_API_KEY, CRON_SECRET
+cp .env.example .env.local   # fill in SUPABASE_URL, SUPABASE_SECRET_KEY, OPENROUTER_API_KEY, CRON_SECRET
 npm run dev
 ```
 Database schema: `supabase/schema.sql`. Test one investor without writing anything:
