@@ -445,9 +445,10 @@ export async function startRun(trigger: "cron" | "manual"): Promise<{ run: Run; 
     return { run: { ...current, status: "running" }, resumed: true };
   }
   if (trigger === "manual" && current) {
-    const since = Date.now() - new Date(current.started_at).getTime();
+    // Cooldown counts from when the last run finished, so back-to-back refreshes are not possible.
+    const since = Date.now() - new Date(current.finished_at ?? current.started_at).getTime();
     if (since < MANUAL_COOLDOWN_MS) {
-      return { error: "A refresh ran in the last 5 minutes. Please wait before refreshing again.", retryAfter: Math.ceil((MANUAL_COOLDOWN_MS - since) / 1000) };
+      return { error: "A refresh finished less than 5 minutes ago. Please wait before refreshing again.", retryAfter: Math.ceil((MANUAL_COOLDOWN_MS - since) / 1000) };
     }
   }
   const s = db();
