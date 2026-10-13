@@ -108,7 +108,11 @@ export function SignalCard({ inv, a, rank }: { inv: Investor; a: Assessment; ran
           </div>
         )}
         <div className="card-actions">
-          {a.opening_line && <a className="btn" href={mailto(inv, a)}>Draft email ↗</a>}
+          {actionTone(a.action) === "hot" ? (
+            <Link className="btn primary" href={`/outreach#${inv.id}`}>✉ Draft full email</Link>
+          ) : (
+            a.opening_line && <a className="btn" href={mailto(inv, a)}>Draft email ↗</a>
+          )}
           <a className="btn ghost" href={s.url} target="_blank" rel="noreferrer">Open evidence ↗</a>
           {a.signals.length > 1 && <Link className="btn ghost" href={`/investor/${inv.id}`}>+{a.signals.length - 1} more signal{a.signals.length > 2 ? "s" : ""}</Link>}
         </div>

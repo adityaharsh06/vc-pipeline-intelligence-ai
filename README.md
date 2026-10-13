@@ -17,12 +17,16 @@ lists who has gone quiet, and updates his Supabase table, **without ever touchin
 1. **Priority queue (`/`)**: the top 5 to contact this week. Each card shows the signal, its date, the source link,
    how many outlets covered it, a why-now note, a Gemini-drafted opening line (Copy / Draft email), and a
    "Why this score" breakdown.
-2. **Quiet VCs (`/quiet`)**: investors with no verifiable activity in 30 days, so Vikram knows where not to spend energy.
-3. **All investors (`/pipeline`)**: the live Supabase table. Purple columns are Vikram's; blue columns are
+2. **Outreach emails (`/outreach`)**: one click from the green "Reach out this week" card. Gemini Flash drafts a full
+   email for each VC on the list, based on their signal (first email, follow-up or next step, depending on status). Switch
+   tone (shorter / warmer / more formal), edit, **Open in Gmail** or copy, then **Mark as contacted**, which updates
+   Vikram's own status and last-contact columns. Drafts only: the app never sends email.
+3. **Quiet VCs (`/quiet`)**: investors with no verifiable activity in 30 days, so Vikram knows where not to spend energy.
+4. **All investors (`/pipeline`)**: the live Supabase table. Purple columns are Vikram's; blue columns are
    pipeline-owned. **Edit a note → press Refresh now → the note survives.**
-4. **Runs & audit (`/runs`)**: run history, Gemini calls per run, and a **"Try to overwrite a note as the
+5. **Runs & audit (`/runs`)**: run history, Gemini calls per run, and a **"Try to overwrite a note as the
    pipeline"** button that shows the database refusing the write.
-5. **Any investor page**: every signal found, plus the **evidence that was rejected and why** (wrong person with the same
+6. **Any investor page**: every signal found, plus the **evidence that was rejected and why** (wrong person with the same
    name, outside the 30-day window, roundup that only mentions the firm in passing).
 
 ## How it works

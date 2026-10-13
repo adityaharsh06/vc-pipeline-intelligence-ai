@@ -1,5 +1,6 @@
 import { db } from "./supabase";
 import { latestRun } from "./pipeline";
+import { actionTone } from "./scoring";
 import type { Assessment, Investor, Run } from "./types";
 
 export type Row = {
@@ -99,4 +100,14 @@ export function ago(iso: string) {
 export function daysAgo(dateIso: string) {
   const d = Math.floor((Date.now() - new Date(dateIso + "T00:00:00Z").getTime()) / 86_400_000);
   return d <= 0 ? "today" : d === 1 ? "yesterday" : `${d} days ago`;
+}
+
+// "Reach out this week" list: same rule as the priority queue (active signal, hot action), best first.
+export async function getOutreachList() {
+  const { rows, lastDone } = await getSnapshot();
+  const list = rows
+    .filter((r) => r.latest?.state === "active" && r.latest.best_signal && actionTone(r.latest.action) === "hot")
+    .sort((a, b) => (b.latest!.score ?? 0) - (a.latest!.score ?? 0))
+    .map((r) => ({ inv: r.inv, a: r.latest! }));
+  return { list, lastDone };
 }
