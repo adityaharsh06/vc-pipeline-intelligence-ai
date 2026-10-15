@@ -121,7 +121,7 @@ Return JSON: {"findings":[{"title":string,"url":string,"date":"YYYY-MM-DD","type
       if (r.status !== "fulfilled") continue;
       newsOk = true;
       for (const item of r.value.slice(0, 5)) {
-        if (candidates.length >= 14) break;
+        if (candidates.length >= 10) break; // keeps each batched AI answer short and fast
         const key = item.title.toLowerCase().slice(0, 60);
         if (seen.has(key)) continue;
         seen.add(key);

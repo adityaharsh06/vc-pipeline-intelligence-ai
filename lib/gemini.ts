@@ -94,7 +94,10 @@ export async function gemini<T>(prompt: string, opts: Options = {}): Promise<Gem
 
     opts.onCall?.(model);
     let res: Response;
+    let text: string;
     try {
+      // OpenRouter sends headers right away and the body only when generation finishes,
+      // so the timeout must cover reading the body too.
       res = await fetch(ENDPOINT, {
         method: "POST",
         headers: {
@@ -103,14 +106,19 @@ export async function gemini<T>(prompt: string, opts: Options = {}): Promise<Gem
           "x-title": "VC Signal Desk",
         },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(Math.min(75_000, left - 3_000)),
+        signal: AbortSignal.timeout(Math.min(110_000, left - 3_000)),
       });
+      text = await res.text();
     } catch (e) {
-      lastError = e instanceof Error ? e.message : String(e);
+      // Timed out or dropped: retry, preferring the other Flash model for the next minute.
+      lastError = `${model}: ${e instanceof Error ? e.message : String(e)}`;
+      if (GEMINI_MODELS.some((m) => m !== model && !unavailable.has(m))) {
+        unavailable.add(model);
+        setTimeout(() => unavailable.delete(model), 60_000);
+      }
       await sleep(1000);
       continue;
     }
-    const text = await res.text();
     if (process.env.GEMINI_DEBUG) {
       console.error(`[gemini] ${model} -> ${res.status} ${res.ok ? "" : text.replace(/\s+/g, " ").slice(0, 200)}`);
     }
