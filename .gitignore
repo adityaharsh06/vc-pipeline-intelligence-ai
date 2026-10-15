@@ -45,3 +45,6 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# demo video build output
+brag-output/

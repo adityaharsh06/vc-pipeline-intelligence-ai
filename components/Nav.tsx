@@ -9,6 +9,7 @@ const I = {
   runs: <path d="M22 12h-4l-3 9L9 3l-3 9H2" />,
   send: <path d="M22 2 11 13M22 2l-7 20-4-9-9-4z" />,
   warm: <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></>,
+  play: <><circle cx="12" cy="12" r="9" /><path d="M10 8.5v7l6-3.5z" /></>,
   map: <><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></>,
 };
 
@@ -25,6 +26,7 @@ const LINKS = [
   { group: "System", items: [
     { href: "/runs", label: "Runs & audit", icon: I.runs },
     { href: "/architecture", label: "Components map", icon: I.map },
+    { href: "/demo", label: "Video demo", icon: I.play },
   ]},
 ];
 
