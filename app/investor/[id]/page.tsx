@@ -54,7 +54,7 @@ export default async function InvestorPage({ params }: PageProps<"/investor/[id]
           <h2>Latest assessment</h2>
           {latest.why && <p className="why">{latest.why}</p>}
           {latest.opening_line && <div className="opener"><div><span className="lbl">Suggested opening line</span>{latest.opening_line}</div></div>}
-          {latest.breakdown && <BreakdownBars b={latest.breakdown} total={latest.score} />}
+          {latest.breakdown && <BreakdownBars b={latest.breakdown} total={latest.score} signal={latest.best_signal} scannedAt={latest.created_at} />}
         </section>
       )}
 

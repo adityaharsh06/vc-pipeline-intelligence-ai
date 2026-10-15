@@ -40,6 +40,7 @@ export type Signal = {
   date_basis: "publisher_feed" | "page_metadata" | "search_estimate";
   type: SignalType;
   relevance: number; // 0-100 relevance to B2B logistics / supply-chain SaaS
+  relevance_why?: string; // Gemini's 2-6 word reason for the relevance rating
   summary: string;
   evidence: EvidenceLevel;
   origin: "google_news" | "bing_news" | "gemini_search";

@@ -204,7 +204,7 @@ Return JSON: {"findings":[{"title":string,"url":string,"date":"YYYY-MM-DD","type
 
 // ---------- Step 2: Gemini classifies the evidence (several investors per call) ----------
 
-type ClassifiedItem = { id: string; about_investor: boolean; reason: string; type: SignalType; relevance: number; summary: string; story: string };
+type ClassifiedItem = { id: string; about_investor: boolean; reason: string; type: SignalType; relevance: number; relevance_why: string; summary: string; story: string };
 type Classified = { key: string; items: ClassifiedItem[]; best_id: string; why_now: string; opening_line: string };
 type Gathered = Awaited<ReturnType<typeof gatherCandidates>>;
 
@@ -227,10 +227,11 @@ const CLASSIFY_SCHEMA = {
                 reason: { type: "string" },
                 type: { type: "string", enum: SIGNAL_TYPES },
                 relevance: { type: "integer" },
+                relevance_why: { type: "string" },
                 summary: { type: "string" },
                 story: { type: "string" },
               },
-              required: ["id", "about_investor", "reason", "type", "relevance", "summary", "story"],
+              required: ["id", "about_investor", "reason", "type", "relevance", "relevance_why", "summary", "story"],
             },
           },
           best_id: { type: "string" },
@@ -264,6 +265,7 @@ Return one entry per investor key. For EACH candidate item decide:
 - about_investor: true only if the item is about this investor's or firm's OWN activity (they invested, wrote, spoke, appeared, announced). False if it is about a different person/firm with a similar name, or only lists them in passing.
 - type: one of ${JSON.stringify(SIGNAL_TYPES)}. "investment" = a NEW round they invested in or led. "portfolio_milestone" = news about an existing portfolio company (IPO, exit, later round they did not lead).
 - relevance (0-100) to a seed-stage B2B logistics / supply-chain SaaS: 80-100 directly logistics, freight, fleet, warehousing or supply-chain software; 50-79 adjacent (B2B operations SaaS, mobility, commerce enablement, industrial); 20-49 general seed or B2B activity; 0-19 unrelated.
+- relevance_why: 2-6 words explaining that relevance rating (e.g. "Freight software, direct fit", "Healthtech, not logistics").
 - summary: one plain sentence describing what happened.
 - reason: a few words justifying about_investor.
 - story: a short slug for the underlying event (e.g. "lumio-series-a"). Items reporting the same event MUST share the same story.
@@ -329,6 +331,7 @@ function buildResult(inv: Investor, g: Gathered, c: Classified | undefined, now:
         date_basis: cand.date_basis,
         type: SIGNAL_TYPES.includes(item.type) ? item.type : "other",
         relevance: Math.max(0, Math.min(100, Math.round(item.relevance))),
+        relevance_why: item.relevance_why?.trim().split(/s+/).slice(0, 6).join(" ") || undefined,
         summary: item.summary,
         evidence: cand.evidence,
         origin: cand.origin,

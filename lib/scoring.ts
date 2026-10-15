@@ -93,3 +93,47 @@ export function actionTone(action: string | null): "hot" | "warm" | "cold" | "ho
   if (action.startsWith("Hold") || action.startsWith("Wait") || action.startsWith("Do not")) return "hold";
   return "cold";
 }
+
+// Short (2-6 word) reasons shown next to each rubric row. Derived from the stored points and
+// evidence, so they always match the numbers; relevance uses Gemini's own short reason when present.
+export function explainBreakdown(b: Breakdown, sig: Signal | null, scannedAt: string): Record<keyof Breakdown, string> {
+  const age = sig ? Math.max(0, daysBetween(sig.date, new Date(scannedAt))) : null;
+  const rel = sig?.relevance ?? Math.round((b.relevance / WEIGHTS.relevance) * 100);
+  const words = (s: string) => s.trim().split(/\s+/).slice(0, 6).join(" ");
+  const TYPE_NOTE: Record<SignalType, string> = {
+    investment: "New investment: strongest signal",
+    fund_or_thesis: "New fund or thesis news",
+    blog_post: "Wrote about it publicly",
+    interview_or_podcast: "Spoke about it publicly",
+    event: "Appeared at an event",
+    portfolio_milestone: "Portfolio news, not new deal",
+    other: "General public activity",
+  };
+  const EVIDENCE_NOTE: Record<Signal["evidence"], string> = {
+    dated_press: "Publisher-dated news article",
+    verified_page: "Source page verified",
+    search_result: "Search result, date estimated",
+    model_only: "Source not confirmed",
+  };
+  const RELATIONSHIP_NOTE: Record<number, string> = {
+    10: "Not contacted yet",
+    9: "Waiting 14+ days: nudge due",
+    8: "Waiting on reply",
+    7: "Already in conversation",
+    5: "Waiting 7-13 days",
+    2: "They passed earlier",
+    1: "Contacted under a week ago",
+  };
+  return {
+    recency: age === null ? "" : age === 0 ? "Published the day of scan" : `${age} day${age === 1 ? "" : "s"} old`,
+    relevance: sig?.relevance_why
+      ? words(sig.relevance_why)
+      : rel >= 80 ? "Directly logistics / supply chain"
+      : rel >= 50 ? "Adjacent to logistics"
+      : rel >= 20 ? "General B2B or seed deal"
+      : "Outside logistics",
+    signal_type: sig ? TYPE_NOTE[sig.type] : "",
+    evidence: sig ? EVIDENCE_NOTE[sig.evidence] : "",
+    relationship: RELATIONSHIP_NOTE[b.relationship] ?? "",
+  };
+}

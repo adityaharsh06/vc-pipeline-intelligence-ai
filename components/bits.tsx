@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Assessment, Breakdown, Investor, Signal } from "@/lib/types";
 import { SIGNAL_TYPE_LABEL, STATUS_LABEL } from "@/lib/types";
-import { actionTone, WEIGHTS } from "@/lib/scoring";
+import { actionTone, explainBreakdown, WEIGHTS } from "@/lib/scoring";
 import { daysAgo } from "@/lib/data";
 import CopyButton from "./CopyButton";
 
@@ -47,7 +47,8 @@ export function SignalMeta({ s }: { s: Signal }) {
   );
 }
 
-export function BreakdownBars({ b, total }: { b: Breakdown; total: number | null }) {
+export function BreakdownBars({ b, total, signal, scannedAt }: { b: Breakdown; total: number | null; signal: Signal | null; scannedAt: string }) {
+  const notes = explainBreakdown(b, signal, scannedAt);
   const rows: [keyof Breakdown, string][] = [
     ["recency", "Recency"],
     ["relevance", "Relevance"],
@@ -64,6 +65,7 @@ export function BreakdownBars({ b, total }: { b: Breakdown; total: number | null
             <span className="muted">{label}</span>
             <span className="bar"><i style={{ width: `${(b[k] / WEIGHTS[k]) * 100}%` }} /></span>
             <span className="mono small">{b[k]}/{WEIGHTS[k]}</span>
+            <span className="bd-note">{notes[k]}</span>
           </div>
         ))}
       </div>
@@ -118,7 +120,7 @@ export function SignalCard({ inv, a, rank }: { inv: Investor; a: Assessment; ran
           <a className="btn ghost" href={s.url} target="_blank" rel="noreferrer">Open evidence ↗</a>
           {a.signals.length > 1 && <Link className="btn ghost" href={`/investor/${inv.id}`}>+{a.signals.length - 1} more signal{a.signals.length > 2 ? "s" : ""}</Link>}
         </div>
-        {a.breakdown && <BreakdownBars b={a.breakdown} total={a.score} />}
+        {a.breakdown && <BreakdownBars b={a.breakdown} total={a.score} signal={a.best_signal} scannedAt={a.created_at} />}
       </div>
     </article>
   );
