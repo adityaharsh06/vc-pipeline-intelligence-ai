@@ -358,3 +358,13 @@ svg text { font-family: var(--font-geist-sans), system-ui, sans-serif; }
   .bars { grid-template-columns: 100px 1fr 50px; }
   .bars .bd-note { grid-column: 1 / -1; margin: -4px 0 4px; }
 }
+
+/* ---------- components map page ---------- */
+.map-panel { padding: 14px; }
+.map-img { display: block; overflow-x: auto; border-radius: 12px; }
+.map-img img { display: block; width: 100%; min-width: 860px; height: auto; border-radius: 12px; }
+.steps { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.step { display: flex; gap: 14px; padding: 16px 18px; align-items: flex-start; }
+.step-n { flex: none; width: 34px; height: 34px; border-radius: 10px; background: var(--g-blue); color: #fff; font-weight: 700; display: grid; place-items: center; }
+.step-title { font-weight: 650; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr; } }
