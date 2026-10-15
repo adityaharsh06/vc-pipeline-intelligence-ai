@@ -331,7 +331,7 @@ function buildResult(inv: Investor, g: Gathered, c: Classified | undefined, now:
         date_basis: cand.date_basis,
         type: SIGNAL_TYPES.includes(item.type) ? item.type : "other",
         relevance: Math.max(0, Math.min(100, Math.round(item.relevance))),
-        relevance_why: item.relevance_why?.trim().split(/s+/).slice(0, 6).join(" ") || undefined,
+        relevance_why: item.relevance_why?.trim().split(/\s+/).slice(0, 6).join(" ") || undefined,
         summary: item.summary,
         evidence: cand.evidence,
         origin: cand.origin,
